@@ -23,16 +23,16 @@ function RealEscapeString($db, $escapestr)
  */
 
 /* $username = "root"; */
-$username = "cms";
+$username = "root";
 
 /*$password = ""; */
-$password = "Abby2008";
+$password = "";
 
 /* $host = "localhost"; */
 //$host = "209.17.116.156";
-$host = "205.178.137.139";
+$host = "127.0.0.1";
 
-$dbname = "cornfedcms";
+$dbname = "csci";
 
 $options = array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8');
 

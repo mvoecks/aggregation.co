@@ -111,6 +111,15 @@ nav span {
 	font-weight: normal;
 }
 
+
+img {
+  display: block;
+  max-width:100%;
+  max-height:400px;
+  width: auto;
+  height: auto;
+}
+
 /* help.php */
 .help {
 	margin-top: 12px;

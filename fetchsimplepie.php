@@ -12,6 +12,9 @@ date_default_timezone_set('America/Denver');
 $query = "SELECT * FROM feeds";
 $rows = Query($db, $query);
 
+$deleteItems = "DELETE FROM items WHERE 1=1";
+Query($db, $deleteItems);
+
 // Load the items for each feed
 foreach ($rows as $feed) {
 	// Load items for all feeds
@@ -27,78 +30,81 @@ foreach ($rows as $feed) {
 	echo "<div>";
 	echo $content->get_title();
 	echo "</div>\n";
-
-        // Display each RSS item
+	
+	// Display each RSS item
 	foreach ($content->get_items() as $item) {
+		echo "<div><b>";
+		echo $item->get_title();
+		echo "</b></div>";
 
-		// Check whether item already exists in the items table
-		$itemquery =
-			"SELECT * FROM items WHERE id=" .
-			$feed['id'] .
-			" AND feedLink=\"" .
-			$item->get_feed()->get_permalink() .
-			"\" AND itemLink=\"" .
-			$item->get_permalink() .
-			"\"";
+		$imgUrl = Null;
 
-		echo "itemquery=\"" . $itemquery . "\"\n";
+		$enclosure = $item->get_enclosure();
+		$imgUrl = $enclosure->get_link();
 
-		$itemrows = Query($db, $itemquery);
-		if (count($itemrows) == 0) {
-			echo "<div><b>";
-			echo $item->get_title();
-			echo "</b></div>";
-
+		if (count($imgUrl) != 0){
+			echo "<div>";	
+			echo "<a href=".$imgUrl.">";
+			echo "<img src=".$imgUrl.">";
+			echo "</a>";
 			echo "<div>";
-			echo $item->get_local_date();
-			echo "</div>";
-
-			echo "<div>";
-			echo $item->get_description();
-			echo "</div>";
-
-			// Insert the item in the items table
-			if ($item->get_title() == NULL) {
-
-			$insertquery =
-				"INSERT INTO items (id,feedTitle,feedLink,itemPubDate,itemLink,itemDesc) VALUES (" .
-				$feed['id'] . ",'" . 
-				$item->get_feed()->get_title() .
-				"','" .
-				$item->get_feed()->get_permalink() .
-				"','" .
-				$item->get_local_date() .
-				"','" .
-				$item->get_permalink() .
-				"','" .
-				RemoveLinks($item->get_description()) .
-				"')";
-
-			} else {
-
-			$insertquery =
-				"INSERT INTO items (id,feedTitle,feedLink,itemTitle,itemPubDate,itemLink,itemDesc) VALUES (" .
-				$feed['id'] . ",'" . 
-				$item->get_feed()->get_title() .
-				"','" .
-				$item->get_feed()->get_permalink() .
-				"','" .
-				$item->get_title() .
-				"','" .
-				$item->get_local_date() .
-				"','" .
-				$item->get_permalink() .
-				"','" .
-				RemoveLinks($item->get_description()) .
-				"')";
-
-			}
-
-		echo "insertquery=\"" . $insertquery . "\"\n";
-
-			Query($db, $insertquery);
 		}
+		
+		echo "<div>";
+		echo $item->get_local_date();
+		echo "</div>";
+
+		echo "<div>";
+		echo $item->get_description();
+		echo "</div>";
+
+		// Insert the item in the items table
+		$insertString = '';
+		if ($item->get_title() == NULL) {
+			$insertString = makeStr($feed, $item, 'insert', $imgUrl); 
+		} else {
+			$insertString = makeStr($feed, $item, 'insert', $imgUrl);
+		}
+		echo "insertquery=\"" . $insertString . "\"\n";
+		Query($db, $insertString);
+			
 	}
 }
+
+function makeStr($feed, $item, $type, $imgUrl){
+	$isTitle = 1;
+	if ($item->get_title() == NULL){
+		$isTitle == NULL;
+	}
+	if ($isTitle == NULL){
+		$query = "INSERT INTO items (id,feedTitle,feedLink,itemPubDate,itemLink,itemDesc,itemImg) VALUES ('";
+	} else{
+		$query = "INSERT INTO items (id,feedTitle,feedLink,itemTitle,itemPubDate,itemLink,itemDesc,itemImg) VALUES ('";
+	}
+	$query = $query . 
+		$feed['id'] . "','" .	
+		$item->get_feed()->get_title() .
+		"','" .
+		$item->get_feed()->get_permalink() .
+		"','";
+
+		if ($isTitle != NULL){
+			$query = $query . 
+			$item->get_title() .
+			"','";
+		}
+		
+		$query = $query . 
+		$item->get_local_date() .
+		"','" .
+		$item->get_permalink() .
+		"','" .
+		RemoveLinks($item->get_description()) .
+		"','" .
+		$imgUrl .
+		"')";
+	return $query;
+}
+
 
 require("include/footer.php");

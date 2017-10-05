@@ -36,7 +36,7 @@ foreach ($rows as $row) {
 
 		if (strlen($rss->channel->title) == 0) {
 			echo "<span class=\"feedsListTitle\">" .
-			    "<a href=\"http://aggregation.co/?feed=" .
+			    "<a href=\"http://127.0.0.1/aggregation.co/?feed=" .
 			    $row['id'] .
 			    "\">" .
 			    $row['link'] .
@@ -47,7 +47,7 @@ foreach ($rows as $row) {
 */
 		} else {
 			echo "<span class=\"feedsListTitle\">" .
-			    "<a href=\"http://aggregation.co/?feed=" .
+			    "<a href=\"http://127.0.0.1/aggregation.co/?feeds=" .
 			    $row['id'] .
 			    "\">" .
 			    $rss->channel->title .
